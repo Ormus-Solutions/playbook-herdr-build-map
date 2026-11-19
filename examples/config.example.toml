@@ -40,7 +40,10 @@ prs = 120
 
 # One [[lanes]] table per agent lane, in the order you want the rows.
 #   name    the row's name and the card file (cards/<name>.json)
-#   agent   the Herdr agent name of the lane (default: the name)
+#   agent   the Herdr agent name of the lane (default: the name). Herdr takes a name only
+#           when it is a lowercase letter, then lowercase letters, digits, - or _, 32
+#           characters at most. When the lane's name breaks that rule ("Web", "api.v2"),
+#           set agent, for example agent = "web".
 #   branch  the head-branch prefix of the lane's PRs (default: "<name>/")
 [[lanes]]
 name = "orch"

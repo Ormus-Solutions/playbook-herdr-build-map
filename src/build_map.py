@@ -69,6 +69,7 @@ PENDING_CHECKS = {"", "PENDING", "EXPECTED", "QUEUED", "IN_PROGRESS", "WAITING",
 AGENT_STATES = {"working", "idle", "done", "blocked", "unknown"}  # Herdr's lifecycle states
 WAITING = {"idle", "done"}  # Herdr: the agent waits for input
 LANE_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
+AGENT_NAME = re.compile(r"[a-z][a-z0-9_-]{0,31}")  # Herdr's own rule for an agent name
 PR_FIELDS = "number,title,state,isDraft,headRefName,reviewDecision,statusCheckRollup,mergedAt,labels"
 
 
@@ -152,6 +153,11 @@ def parse_config(raw: dict[str, Any], base: Path) -> Config:
     agents = text(raw, "agents", "herdr")
     if agents not in ("herdr", "cards"):
         fail("'agents' must be \"herdr\" or \"cards\"")
+    for lane in lanes if agents == "herdr" else ():
+        if not AGENT_NAME.fullmatch(lane.agent):
+            fail(f"lane '{lane.name}': {lane.agent!r} is not a name Herdr takes for an agent (a lowercase "
+                 "letter, then lowercase letters, digits, - or _, 32 characters at most); set "
+                 "agent = \"...\" in its [[lanes]] table")
     refresh = raw.get("refresh", {})
     if not isinstance(refresh, dict):
         fail("'refresh' must be a [refresh] table")

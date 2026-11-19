@@ -130,7 +130,11 @@ Expected: `0`
 
 ### 7. Give each lane's agent its lane name in Herdr
 
-The pane finds a lane's state by the agent's name in Herdr. List the panes,
+The pane finds a lane's state by the agent's name in Herdr. Herdr takes a
+name only when it is a lowercase letter, then lowercase letters, digits, `-`
+or `_`, 32 characters at most. When a lane's `name` breaks that rule (`Web`,
+`api.v2`), set `agent = "web"` in its `[[lanes]]` table: the program refuses
+such a config and names the lane. List the panes,
 then name the agent in each lane's pane (ask the person first: a rename is
 visible in their Herdr):
 

@@ -301,6 +301,21 @@ class ConfigTest(unittest.TestCase):
                 bm.parse_config(raw, Path("."))
             self.assertIn("config", str(caught.exception))
 
+    def test_a_herdr_agent_name_follows_herdrs_rule(self) -> None:
+        # Herdr: a lowercase letter, then lowercase letters, digits, - or _, 32 characters at most.
+        for name in ("Web", "api.v2", "2fa", "a" * 33):
+            with self.assertRaises(SystemExit, msg=name) as caught:
+                bm.parse_config({"lanes": [{"name": name}]}, Path("."))
+            self.assertIn("agent =", str(caught.exception))
+            with self.assertRaises(SystemExit, msg=name):
+                bm.parse_config({"lanes": [{"name": "web", "agent": name}]}, Path("."))
+            cards = bm.parse_config({"agents": "cards", "lanes": [{"name": name}]}, Path("."))
+            self.assertEqual(cards.lanes[0].name, name)  # cards mode asks Herdr nothing
+        fixed = bm.parse_config({"lanes": [{"name": "Web", "agent": "web"}]}, Path("."))
+        self.assertEqual(fixed.lanes[0].agent, "web")
+        for good in ("a" * 32, "docs-writer", "lane_2"):
+            self.assertEqual(bm.parse_config({"lanes": [{"name": good}]}, Path(".")).lanes[0].agent, good)
+
     def test_the_example_config_loads(self) -> None:
         config = bm.load_config(ROOT / "examples" / "config.example.toml")
         self.assertEqual([x.name for x in config.lanes], ["orch", "api", "web", "docs"])
