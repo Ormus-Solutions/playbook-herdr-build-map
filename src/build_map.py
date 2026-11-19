@@ -55,6 +55,8 @@ ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 LOOK_COLOR = {"pending": DIM, "active": YELLOW, "done": GREEN, "failed": RED, "decide": MAGENTA}
 LOOK_MARK = {"pending": "·", "done": "✓", "failed": "✗", "decide": "◆"}
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+# A loud lane row works, asks or fails; a short pane keeps these longest, failing ones first.
+LOUD = {"failed": "failing", "decide": "asking", "active": "working"}
 BAR_MAX = 60  # a bar is never wider, so a wide pane keeps its rows readable
 
 # Where an open PR waits: key, label, colour. See pr_stage for the rules.
@@ -422,10 +424,12 @@ def for_you(snap: dict[str, Any], views: list[dict[str, Any]]) -> list[tuple[str
     return items
 
 
-def frame(snap: dict[str, Any], width: int, tick: int, level: int) -> list[str]:
+def frame(snap: dict[str, Any], width: int, tick: int, level: int, loud_rows: int | None = None) -> list[str]:
     """The whole frame at one level of detail. Level 0 shows everything; 1 keeps the line under
     a lane only when it works, asks or fails; 2 drops blank lines, stage notes, empty queue rows
-    and lane lines; 3 also folds the quiet lanes into one line and keeps three FOR YOU items."""
+    and lane lines; 3 also folds the quiet lanes into one line and keeps three FOR YOU items.
+    At level 3, `loud_rows` caps the loud lane rows (failing first, then asking, then working);
+    the rest fold into one more line, so the footer and FOR YOU keep their place."""
     now = snap["ts"]
     rule = DIM + " " + "━" * (width - 2) + RESET
     blank = [""] if level < 2 else []
@@ -486,11 +490,17 @@ def frame(snap: dict[str, Any], width: int, tick: int, level: int) -> list[str]:
     right = counts_text(known) if known or not states else snap["agents_note"] or "unknown"
     out += blank + section("LANES", right)
     name_w = min(16, max([4, *(len(v["name"]) for v in views)]))
-    quiet = 0
-    for v in views:
-        loud = v["look"] in ("active", "failed", "decide")
+    loud_order = sorted((i for i, v in enumerate(views) if v["look"] in LOUD),
+                        key=lambda i: (list(LOUD).index(views[i]["look"]), i))
+    kept = set(loud_order if level < 3 or loud_rows is None else loud_order[:max(0, loud_rows)])
+    quiet, folded = 0, []
+    for i, v in enumerate(views):
+        loud = v["look"] in LOUD
         if level >= 3 and not loud:
             quiet += 1
+            continue
+        if loud and i not in kept:
+            folded.append(v["look"])
             continue
         head = f" {mark(v['look'], tick)} {v['name'][:name_w]:<{name_w}}"
         meta = f"{v['word'][:7]:<7} {('#' + str(v['pr'])) if v['pr'] else '':>5} {age(v['updated'], now):>4}"
@@ -501,6 +511,11 @@ def frame(snap: dict[str, Any], width: int, tick: int, level: int) -> list[str]:
             out.append(paint(cut(" " * (name_w + 4) + detail, width), "decide" if v["question"] else "pending"))
     if quiet:
         out.append(paint(f" +{quiet} more lanes, quiet", "pending"))
+    if folded:
+        kinds = [(word, folded.count(look)) for look, word in LOUD.items() if look in folded]
+        what = kinds[0][0] if len(kinds) == 1 else " · ".join(f"{n} {word}" for word, n in kinds)
+        worst = next(look for look in LOUD if look in folded)
+        out.append(paint(f" +{len(folded)} more lanes{',' if len(kinds) == 1 else ':'} {what}", worst))
 
     # footer: the agents, then FOR YOU
     out.append(rule)
@@ -525,14 +540,21 @@ def frame(snap: dict[str, Any], width: int, tick: int, level: int) -> list[str]:
 
 def render(snap: dict[str, Any], width: int, tick: int = 0, height: int | None = None) -> list[str]:
     """The frame, no line wider than `width` (colours do not count). In a pane `height` lines
-    tall it drops detail level by level before it cuts anything; only a pane too short for the
-    last level loses its bottom lines."""
+    tall it drops detail level by level before it cuts anything. At the last level it folds the
+    loud lanes that do not fit into one line, so AGENTS and FOR YOU stay on screen in a busy
+    build; only a pane too short even for that loses its bottom lines."""
     width = max(50, width)
     lines: list[str] = []
     for level in range(4):
         lines = frame(snap, width, tick, level)
         if height is None or len(lines) <= height - 1:
             return lines
+    # At level 3 a loud lane is one row. Drop as many as the frame is too tall, plus one for
+    # the line that folds them.
+    loud = sum(1 for lane in snap["lanes"] if lane_view(lane, snap["prs"])["look"] in LOUD)
+    over = len(lines) - (height - 1)
+    if loud:
+        lines = frame(snap, width, tick, 3, loud_rows=loud - over - 1)
     return lines[: max(1, height - 1)]
 
 

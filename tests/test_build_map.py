@@ -254,6 +254,31 @@ class FrameTest(unittest.TestCase):
         tiny = bm.render(data, 78, height=8)
         self.assertEqual(len(tiny), 7)
 
+    def test_a_busy_build_keeps_the_footer_and_for_you(self) -> None:
+        names = [f"lane{i:03d}" for i in range(100)]
+        data = snap(lanes=[lane(n, "working") for n in names], agents={n: "working" for n in names},
+                    map={"stages": [{"label": "one", "pct": 50}], "for_you": ["sign the release"]})
+        lines = bm.plain(bm.render(data, 80, height=40))
+        text = "\n".join(lines)
+        self.assertLessEqual(len(lines), 39)
+        self.assertIn("AGENTS 100 working", text)
+        self.assertIn(" FOR YOU", text)
+        self.assertIn("· sign the release", text)
+        shown = sum(1 for line in lines if line.lstrip()[:1] in bm.SPIN and "lane" in line)
+        self.assertIn(f"+{100 - shown} more lanes, working", text)
+
+    def test_a_busy_build_shows_the_failing_and_asking_lanes_first(self) -> None:
+        lanes = [lane(f"work{i}", "working") for i in range(50)] + [lane(f"calm{i}") for i in range(50)]
+        lanes += [lane("stuck", "blocked"), lane("asks", question="which?")]
+        lines = bm.plain(bm.render(snap(lanes=lanes), 80, height=40))
+        text = "\n".join(lines)
+        self.assertLessEqual(len(lines), 39)
+        self.assertTrue(any(line.startswith(" ✗ stuck") for line in lines), text)
+        self.assertTrue(any(line.startswith(" ◆ asks") for line in lines), text)
+        self.assertIn("+50 more lanes, quiet", text)
+        self.assertRegex(text, r"\+\d+ more lanes, working")
+        self.assertIn("· asks: which?", text)
+
     def test_the_spinner_turns_on_active_rows_only(self) -> None:
         data = self.demo_snap()
         a, b = bm.plain(bm.render(data, 78, tick=0)), bm.plain(bm.render(data, 78, tick=1))

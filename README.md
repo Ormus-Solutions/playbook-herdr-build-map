@@ -150,9 +150,12 @@ green for done, red for a stop, magenta for a question):
 | AGENTS | every agent Herdr lists, by state | 5 s |
 | FOR YOU | the cards' questions, open PRs with the `for-you` label, the map's `for_you` lines | each redraw |
 
-When the pane is short, it drops detail in steps (notes, then blank lines,
-then the quiet lanes, folded into "+N more lanes, quiet") before it cuts a
-line, so a build with a hundred lanes still fits.
+When the pane is short, it drops detail in steps: the notes, then the blank
+lines, then the quiet lanes (folded into "+N more lanes, quiet"), then the
+working lanes that still do not fit (folded into "+N more lanes, working"; a
+failing or asking lane is kept longest). The AGENTS line and FOR YOU stay on
+screen, so a build with a hundred busy lanes still shows what waits for you.
+Only a pane too short even for that loses its bottom lines.
 
 ## Files
 
