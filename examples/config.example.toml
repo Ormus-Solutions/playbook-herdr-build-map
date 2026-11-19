@@ -11,8 +11,17 @@ title = "ACME-WEB · BUILD"
 # Start from examples/demo/build-map.json.
 build_map = "~/projects/acme-web/build-map.json"
 
-# A folder with one card per lane, <lane>.json: {"now": "...", "question": "...", "done": false}.
-# Each lane's agent writes its own card. A lane with no card still gets its row.
+# A folder with one card per lane, <lane>.json, which the lane's agent writes:
+#   {"now": "...", "updated": "2026-01-15T16:00:00Z", "question": "...", "done": false,
+#    "state": "working"}
+#   now       one short line: what the lane does now
+#   updated   when the card was written (ISO 8601): the row's age column; without it,
+#             the file's own time is used
+#   question  set while the lane waits for the person (it goes on FOR YOU)
+#   done      true when the lane has nothing left
+#   state     working, idle, done or blocked; required when agents = "cards", or the
+#             lane shows as unknown
+# A lane with no card still gets its row.
 cards = "~/projects/acme-web/cards"
 
 # Where the lane states come from:
