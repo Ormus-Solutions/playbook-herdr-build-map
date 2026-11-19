@@ -9,7 +9,8 @@
 # What it does, with Herdr's own CLI (the same two commands you can type by hand):
 #   1. herdr tab create --label Map --cwd <this repo> --no-focus   -> a new tab and its root pane
 #   2. herdr pane run <that pane> "python3 src/build_map.py ..."   -> the program in that pane
-# It creates one tab and changes nothing else. Close the tab to remove it.
+# It creates one tab and changes nothing else, and prints the tab id and the pane id.
+# Remove it with: herdr tab close <the tab id>
 #
 # Settings: BUILD_MAP_TAB (the tab label, default Map), HERDR (the herdr command),
 # BUILD_MAP_CONFIG (the config when no argument names one).
@@ -48,7 +49,11 @@ if [ -n "${HERDR_WORKSPACE_ID:-}" ]; then
   args+=(--workspace "$HERDR_WORKSPACE_ID")  # the workspace this pane is in
 fi
 created=$("$herdr" "${args[@]}")
-# Read the pane id from the JSON reply instead of guessing it (Herdr's own advice).
-pane=$(printf '%s' "$created" | python3 -c 'import json, sys; print(json.load(sys.stdin)["result"]["root_pane"]["pane_id"])')
+# Read the ids from the JSON reply instead of guessing them (Herdr's own advice).
+ids=$(printf '%s' "$created" | python3 -c 'import json, sys
+r = json.load(sys.stdin)["result"]
+print(r["tab"]["tab_id"], r["root_pane"]["pane_id"])')
+tab=${ids% *}
+pane=${ids#* }
 "$herdr" pane run "$pane" "$run" >/dev/null
-echo "open-map-tab: the tab $label runs the build map in pane $pane"
+echo "open-map-tab: tab $tab, named $label, runs the build map in pane $pane"

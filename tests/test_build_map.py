@@ -415,6 +415,8 @@ class OpenTabTest(unittest.TestCase):
         self.assertEqual(calls[1][:3], ["pane", "run", "w1:p42"])
         self.assertTrue(calls[1][3].endswith("build_map.py --demo"))
         self.assertEqual(len(calls), 2)
+        self.assertIn("tab w1:t9", done.stdout)  # the id `herdr tab close` needs
+        self.assertIn("pane w1:p42", done.stdout)
 
     def test_it_passes_build_map_config_on_to_the_new_pane(self) -> None:
         # The new pane is started by the Herdr server, so the script names the config itself.

@@ -65,18 +65,19 @@ Expected: `check: ok`
 `scripts/open-map-tab.sh` does two things with Herdr's own CLI:
 `herdr tab create --label Map --no-focus` makes a tab and its first pane, and
 `herdr pane run <pane id> "<command>"` starts the program in that pane. It
-prints the pane id. Your focus stays where it is.
+prints the tab id and the pane id. Your focus stays where it is.
 
 ```bash
 bash scripts/open-map-tab.sh --demo
 ```
 
-Verify: wait two seconds, then `herdr pane read <the pane id it printed> --source visible | grep -c 'ACME-WEB'`
-Expected: `1`
+Verify: `herdr pane wait-output <the pane id it printed> --match ACME-WEB --timeout 15000 >/dev/null && echo seen`
+Expected: `seen` (Herdr waits until the text shows, up to 15 seconds, so a slow
+shell start does not fail the check)
 
-Look at the tab: the spinners turn and the clock moves. Close it when you have
-seen it: Ctrl-C in its pane, then close the tab in Herdr. Step 10 opens the
-real one.
+Look at the tab: the spinners turn and the clock moves. Then close it, so
+step 10 does not make a second tab named Map:
+`herdr tab close <the tab id it printed>`. Step 10 opens the real one.
 
 ### 4. Copy the example config
 
@@ -232,8 +233,8 @@ is set and no argument is given, the script passes that path on as
 `--config`: the new pane is started by the Herdr server, not by your shell,
 so it may not see the variable.
 
-Verify: wait five seconds, then `herdr pane read <the pane id it printed> --source visible | grep -c 'LANES'`
-Expected: `1`
+Verify: `herdr pane wait-output <the pane id it printed> --match LANES --timeout 15000 >/dev/null && echo seen`
+Expected: `seen`
 
 ## Adapt it
 
@@ -267,9 +268,9 @@ Expected: `1`
 
 ## Undo
 
-- Stop the pane with Ctrl-C and close the Map tab in Herdr (or
-  `herdr tab close <tab id>`; `herdr tab list --workspace "$HERDR_WORKSPACE_ID"`
-  shows the ids).
+- Close the Map tab: `herdr tab close <the tab id open-map-tab.sh printed>`
+  (`herdr tab list --workspace "$HERDR_WORKSPACE_ID"` shows the ids), or
+  Ctrl-C in its pane and close the tab in Herdr.
 - Remove the config: `rm -r ~/.config/playbook-herdr-build-map`.
 - Remove the lines from step 8 in the agents' instructions, and, if you no
   longer want them, the project's `build-map.json`, its `cards/` folder and
