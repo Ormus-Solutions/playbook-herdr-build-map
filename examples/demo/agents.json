@@ -1,0 +1,19 @@
+{
+  "id": "demo",
+  "result": {
+    "type": "agent_list",
+    "agents": [
+      {"name": "orch", "pane_id": "w1:p1", "agent": "claude", "agent_status": "idle"},
+      {"name": "api", "pane_id": "w1:p2", "agent": "claude", "agent_status": "working"},
+      {"name": "web", "pane_id": "w1:p3", "agent": "codex", "agent_status": "idle"},
+      {"name": "docs", "pane_id": "w1:p4", "agent": "claude", "agent_status": "done"},
+      {"name": "auth", "pane_id": "w1:p5", "agent": "claude", "agent_status": "idle"},
+      {"name": "billing", "pane_id": "w1:p6", "agent": "codex", "agent_status": "working"},
+      {"name": "search", "pane_id": "w1:p7", "agent": "claude", "agent_status": "working"},
+      {"name": "infra", "pane_id": "w1:p8", "agent": "claude", "agent_status": "blocked"},
+      {"name": "review-1", "pane_id": "w1:p9", "agent": "claude", "agent_status": "working"},
+      {"name": "review-2", "pane_id": "w1:p10", "agent": "claude", "agent_status": "idle"},
+      {"name": "review-3", "pane_id": "w1:p11", "agent": "claude", "agent_status": "idle"}
+    ]
+  }
+}

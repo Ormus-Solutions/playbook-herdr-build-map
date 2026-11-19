@@ -1,0 +1,57 @@
+# Example config for your own build. Copy it to
+#   ~/.config/playbook-herdr-build-map/config.toml
+# and change it. The program reads its settings only from this file (or the file you
+# pass with --config, or $BUILD_MAP_CONFIG): there are no hosts or paths in the code.
+# A relative path below is relative to the folder this file is in.
+
+# The first line of the pane.
+title = "ACME-WEB · BUILD"
+
+# The file the orchestrator agent keeps: the stages and the FOR YOU lines.
+# Start from examples/demo/build-map.json.
+build_map = "~/projects/acme-web/build-map.json"
+
+# A folder with one card per lane, <lane>.json: {"now": "...", "question": "...", "done": false}.
+# Each lane's agent writes its own card. A lane with no card still gets its row.
+cards = "~/projects/acme-web/cards"
+
+# Where the lane states come from:
+#   "herdr"  run `herdr agent list` and match each lane to the agent with its name
+#   "cards"  read "state" from each lane card (working, idle, done or blocked);
+#            use it when your agents do not run in Herdr
+agents = "herdr"
+herdr = "herdr"            # the command, if herdr is not on your PATH
+
+# The PR QUEUE: one `gh pr list` call. Leave repo empty to switch the PR QUEUE off.
+repo = "acme/acme-web"
+gh = "gh"
+pr_search = "created:>=2026-01-01"   # keep it to the PRs of this build
+pr_limit = 300
+for_you_label = "for-you"            # an open PR with this label goes on FOR YOU
+
+# Instead of the commands, you can point the program at JSON files your own script writes:
+# agents_file = "agents.json"   # the shape of `herdr agent list`
+# pr_file = "prs.json"          # the shape of `gh pr list --json ...`
+
+# Seconds between two reads of the slow sources. The pane redraws every second anyway.
+[refresh]
+lanes = 5
+prs = 120
+
+# One [[lanes]] table per agent lane, in the order you want the rows.
+#   name    the row's name and the card file (cards/<name>.json)
+#   agent   the Herdr agent name of the lane (default: the name)
+#   branch  the head-branch prefix of the lane's PRs (default: "<name>/")
+[[lanes]]
+name = "orch"
+
+[[lanes]]
+name = "api"
+
+[[lanes]]
+name = "web"
+branch = "feature/web-"
+
+[[lanes]]
+name = "docs"
+agent = "docs-writer"

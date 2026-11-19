@@ -1,0 +1,14 @@
+{
+  "stages": [
+    {"label": "Phase 0 · setup", "weight": 2, "done": 11, "total": 12,
+     "note": "11 of 12 pieces merged · the CI cache is in review"},
+    {"label": "Phase 1 · features", "weight": 5,
+     "prs": [106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 124, 125, 127, 129, 131]},
+    {"label": "Preview site", "weight": 1, "pct": 100, "note": "the preview site answers its health check"},
+    {"label": "Phase 2 · billing", "weight": 2, "pct": 0, "note": "starts when Phase 1 passes 80%"}
+  ],
+  "for_you": [
+    "try the new search on the preview site",
+    "pick a name for the docs site"
+  ]
+}

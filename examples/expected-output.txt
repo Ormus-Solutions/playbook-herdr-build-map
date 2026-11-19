@@ -1,0 +1,48 @@
+ ACME-WEB · BUILD                                                    16:08:51
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ OVERALL █████████████████████████████████████▎░░░░░░░░░░░░░░░░░░░░░░  62%
+
+ STAGES
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ⠋ Phase 0 · setup    ██████████████████████████████████████████████▉░░░░  92%
+     11 of 12 pieces merged · the CI cache is in review
+ ⠋ Phase 1 · features ██████████████████████████████████▏░░░░░░░░░░░░░░░░  67%
+     14 of 21 PRs merged · 7 open
+ ✓ Preview site       ███████████████████████████████████████████████████ 100%
+     the preview site answers its health check
+ · Phase 2 · billing  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0%
+     starts when Phase 1 passes 80%
+
+ PR QUEUE                                          7 open · 12 merged in 24 h
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ ● building (draft)   █▉░░░░░░░░░░░░░░░░░░░░░   1
+ ● check and review   █████▊░░░░░░░░░░░░░░░░░   3
+ ● passed, to merge   ███▉░░░░░░░░░░░░░░░░░░░   2 #118 #124
+ ● STOP, in rework    █▉░░░░░░░░░░░░░░░░░░░░░   1 #127
+ ● merged in 24 h     ███████████████████████  12
+
+ LANES                                      3 working · 4 waiting · 1 blocked
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ · orch    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% idle            3m
+           merging #118 when its review lands
+ ⠋ api     █████████████████████████▊░░░░░░░░░░░░░░░░░  60% review   #121  27m
+           login form: tests for the error messages
+ · web     ████████████████████████████████████▌░░░░░░  85% pass     #124  48m
+           the price page waits for its copy
+ ✓ docs    ███████████████████████████████████████████ 100% done            5h
+           the guide and the API reference are merged
+ ◆ auth    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% idle            8m
+           asks: cookies or tokens for the session?
+ ✗ billing █████████████████████▌░░░░░░░░░░░░░░░░░░░░░  50% fix      #127  38m
+           invoices: the totals test fails on rounding
+ ⠋ search  █████████████████▎░░░░░░░░░░░░░░░░░░░░░░░░░  40% build    #129   7m
+           building the index job
+ ✗ infra   █████████████████████████▊░░░░░░░░░░░░░░░░░  60% blocked  #131
+ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ AGENTS 4 working · 6 waiting · 1 blocked: infra
+
+ FOR YOU
+ · auth: cookies or tokens for the session?
+ · #124 waits for you: Price page copy
+ · try the new search on the preview site
+ · pick a name for the docs site

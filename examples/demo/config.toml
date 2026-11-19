@@ -1,0 +1,33 @@
+# The demo's config. It has the same keys as a real one (see ../config.example.toml),
+# but every source is a file in this folder, so the demo needs no Herdr, no gh and no network.
+title = "ACME-WEB · BUILD"
+build_map = "build-map.json"
+cards = "cards"
+agents = "herdr"
+agents_file = "agents.json"   # instead of running `herdr agent list`
+pr_file = "prs.json"          # instead of running `gh pr list`
+for_you_label = "for-you"
+
+[[lanes]]
+name = "orch"
+
+[[lanes]]
+name = "api"
+
+[[lanes]]
+name = "web"
+
+[[lanes]]
+name = "docs"
+
+[[lanes]]
+name = "auth"
+
+[[lanes]]
+name = "billing"
+
+[[lanes]]
+name = "search"
+
+[[lanes]]
+name = "infra"
