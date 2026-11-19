@@ -24,7 +24,7 @@ def lane(name: str, state: str = "idle", **card: object) -> dict:
 
 
 def snap(**over: object) -> dict:
-    base = dict(ts=NOW, clock="16:08:51", title="T", map={"stages": []}, prs=[], prs_note="",
+    base: dict[str, object] = dict(ts=NOW, clock="16:08:51", title="T", map={"stages": []}, prs=[], prs_note="",
                 agents={}, agents_note="", agents_source="herdr", lanes=[lane("api")], for_you_label="for-you")
     base.update(over)
     return base
@@ -202,7 +202,7 @@ class FailSoftTest(unittest.TestCase):
         config = bm.load_config(bm.DEMO_CONFIG)  # lanes every 5 s, PRs every 120 s
         real_prs, real_agents = bm.read_prs, bm.read_agents
 
-        def count_prs(c: bm.Config) -> list:
+        def count_prs(c: bm.Config) -> list | None:
             calls["prs"] += 1
             return real_prs(c)
 

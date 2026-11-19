@@ -40,7 +40,7 @@ import tomllib
 from dataclasses import dataclass
 from datetime import datetime, tzinfo
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, NoReturn
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO_CONFIG = ROOT / "examples" / "demo" / "config.toml"
@@ -120,7 +120,7 @@ def load_config(path: Path) -> Config:
 
 def parse_config(raw: dict[str, Any], base: Path) -> Config:
     """Check the settings and fill the defaults. Pure: it reads no file."""
-    def fail(why: str) -> None:
+    def fail(why: str) -> NoReturn:
         raise SystemExit(f"build_map: config: {why}")
 
     def text(table: dict[str, Any], key: str, default: str = "") -> str:
@@ -544,10 +544,12 @@ def render(snap: dict[str, Any], width: int, tick: int = 0, height: int | None =
     loud lanes that do not fit into one line, so AGENTS and FOR YOU stay on screen in a busy
     build; only a pane too short even for that loses its bottom lines."""
     width = max(50, width)
+    if height is None:
+        return frame(snap, width, tick, 0)
     lines: list[str] = []
     for level in range(4):
         lines = frame(snap, width, tick, level)
-        if height is None or len(lines) <= height - 1:
+        if len(lines) <= height - 1:
             return lines
     # At level 3 a loud lane is one row. Drop as many as the frame is too tall, plus one for
     # the line that folds them.
