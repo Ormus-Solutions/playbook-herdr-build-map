@@ -22,11 +22,10 @@ source that fails shows "unknown" in its block instead of ending the pane.
 ## What it saved me
 
 Ormus, in his own words: a map view for large projects with hundreds of
-agents, "a great way to stay on track with progress without being a simp and
-asking one session 'how much longer till we are done'". The change is in
-where the answer comes from: the state of the build is on screen all the
-time, so no session has to stop its work to guess at it. A member of the crew
-asked for this playbook.
+agents, "a great way to stay on track with progress without ... asking one
+session 'how much longer till we are done'". The change is in where the
+answer comes from: the state of the build is on screen all the time, so no
+session has to stop its work to guess at it.
 
 ## Who it is for
 
@@ -172,10 +171,10 @@ Only a pane too short even for that loses its bottom lines.
 | `examples/run.sh`, `examples/expected-output.txt` | one demo frame, and the text it must print |
 | `tests/` | offline tests that pin the behaviour on the synthetic data |
 | `check.sh` | the one gate: tests, placeholders, scrub |
-| `scripts/scrub.sh` | the scrub check, copied from playbook-packaging |
+| `scripts/scrub.sh` | the scrub check, copied from playbook-packaging, the playbook that sets how these playbook repos are packaged |
 | `CHANGELOG.md` | what changed, newest first |
 
 ## Credits
 
-Made by Ormus (Ormus Solutions). Packaged with playbook-packaging by Ormus
-(Ormus Solutions). MIT license.
+Made by Ormus (Ormus Solutions). Packaged with playbook-packaging, the
+playbook that sets how these playbook repos are packaged. MIT license.
