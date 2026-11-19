@@ -565,12 +565,18 @@ def plain(lines: list[str]) -> list[str]:
 # ---- the sources: each one may fail, and the pane goes on -----------------------------------------
 
 
+def attempt(fn: Callable[[], Any]) -> tuple[Any, str]:
+    """Run a read: (its value, "") when it works, (None, its error on one line) when it fails."""
+    try:
+        return fn(), ""
+    except Exception as e:  # noqa: BLE001  any read may fail (a missing tool, bad JSON, a timeout)
+        return None, " ".join(str(e).split()) or type(e).__name__
+
+
 def soft(fn: Callable[[], Any], default: Any = None) -> Any:
     """Run a read; a failure gives `default`, which the frame shows as unknown."""
-    try:
-        return fn()
-    except Exception:  # noqa: BLE001  any read may fail (a missing tool, bad JSON, a timeout)
-        return default
+    value, error = attempt(fn)
+    return default if error else value
 
 
 def read_json(path: Path) -> Any:
@@ -594,8 +600,8 @@ def read_prs(config: Config) -> list[dict[str, Any]] | None:
         if config.pr_search:
             argv += ["--search", config.pr_search]
         r = subprocess.run(argv, capture_output=True, text=True, timeout=90)
-        if r.returncode != 0:
-            raise RuntimeError((r.stderr.strip().splitlines() or [f"gh exit {r.returncode}"])[-1])
+        if r.returncode != 0:  # gh's own words, so the pane can say what to fix
+            raise RuntimeError(f"gh: {' '.join(r.stderr.split()) or f'exit {r.returncode}'}")
         data = json.loads(r.stdout)
     else:
         return None
@@ -625,12 +631,14 @@ def read_card(path: Path) -> tuple[dict[str, Any], float | None]:
 
 def fill(config: Config, cache: dict[str, Any], at: float | None = None) -> None:
     """Read the slow sources that are due into the cache: herdr every refresh_lanes seconds,
-    gh every refresh_prs seconds. The redraw reads only the cache, so it never waits."""
+    gh every refresh_prs seconds. The redraw reads only the cache, so it never waits. A failed
+    PR read keeps its error in the cache, and the PR QUEUE shows it."""
     t = time.monotonic() if at is None else at
     if config.agents == "herdr" and t - cache.get("agents_at", float("-inf")) >= config.refresh_lanes:
         cache["agents"], cache["agents_at"] = soft(lambda: read_agents(config)), t
     if t - cache.get("prs_at", float("-inf")) >= config.refresh_prs:
-        cache["prs"], cache["prs_at"] = soft(lambda: read_prs(config)), t
+        cache["prs"], cache["prs_error"] = attempt(lambda: read_prs(config))
+        cache["prs_at"] = t
 
 
 class Clock:
@@ -661,7 +669,7 @@ def view(config: Config, cache: dict[str, Any], clock: Clock) -> dict[str, Any]:
     elif "prs" not in cache:
         prs_note = "reading"
     else:
-        prs_note = "unknown: the PRs could not be read"
+        prs_note = f"unknown: {cache.get('prs_error') or 'the PRs could not be read'}"
     agents = cache.get("agents") if config.agents == "herdr" else None
     if config.agents == "herdr" and "agents" not in cache:
         agents_note = "reading"

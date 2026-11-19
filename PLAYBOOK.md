@@ -209,9 +209,16 @@ Each branch of a lane should start with that lane's `branch` prefix (by
 default `<lane>/`). Fix the config, or ask the lane agents to name their
 branches that way (step 8).
 
-Verify: `python3 src/build_map.py --once --no-color | grep 'PR QUEUE'`
+Verify: `python3 src/build_map.py --once --no-color --width 200 | grep 'PR QUEUE'`
 Expected: ` PR QUEUE ... N open · M merged in 24 h` with your numbers, not
 `unknown`
+
+The list command above is not the call the program makes: the program adds
+`--state all`, `--limit` and your `pr_search`, and runs the `gh` of the
+config. So when the Verify says `unknown:`, read the words after it: they are
+the error of the program's own call (for example `gh: To get started with
+GitHub CLI, please run: gh auth login`). Fix what it names (the sign-in,
+`repo`, `pr_search` or the `gh` path) and run the Verify again.
 
 ### 10. Open the Map tab
 

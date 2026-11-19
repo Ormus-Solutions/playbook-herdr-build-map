@@ -177,7 +177,7 @@ class FailSoftTest(unittest.TestCase):
             text = "\n".join(bm.plain(bm.render(bm.view(config, cache, bm.Clock(bm.DEMO_AT, frozen=True)), 80)))
         self.assertIn("OVERALL unknown", text)
         self.assertIn("unknown: build-map.json could not be read", text)
-        self.assertIn("unknown: the PRs could not be read", text)
+        self.assertIn("unknown: [Errno 2] No such file or directory: '/nonexistent/gh'", text)
         self.assertIn("AGENTS unknown: herdr agent list failed", text)
         lanes_line = next(line for line in text.splitlines() if line.startswith(" LANES"))
         self.assertIn("unknown", lanes_line)
@@ -219,6 +219,24 @@ class FailSoftTest(unittest.TestCase):
             self.assertEqual(calls["prs"], 2)
         finally:
             bm.read_prs, bm.read_agents = real_prs, real_agents  # type: ignore[assignment]
+
+    def test_a_failing_gh_shows_its_own_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = Path(tmp) / "gh"
+            fake.write_text("#!/bin/sh\n"
+                            "echo 'To get started with GitHub CLI, please run:  gh auth login' >&2\n"
+                            "echo 'Alternatively, populate the GH_TOKEN environment variable.' >&2\n"
+                            "exit 4\n", encoding="utf-8")
+            fake.chmod(0o755)
+            config = bm.load_config(demo_config(Path(tmp), **{
+                'pr_file = "prs.json"': f'repo = "acme/acme-web"\ngh = {json.dumps(str(fake))}'}))
+            cache: dict = {}
+            bm.fill(config, cache)
+            text = "\n".join(bm.plain(bm.render(bm.view(config, cache, bm.Clock(bm.DEMO_AT, frozen=True)), 120)))
+            self.assertIn("unknown: gh: To get started with GitHub CLI, please run: gh auth login", text)
+            fake.write_text("#!/bin/sh\necho '[]'\n", encoding="utf-8")  # gh works again
+            bm.fill(config, cache, at=float("inf"))
+            self.assertEqual((cache["prs"], cache["prs_error"]), ([], ""))
 
     def test_no_repo_means_the_pr_queue_is_off(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
