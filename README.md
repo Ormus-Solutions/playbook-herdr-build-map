@@ -78,7 +78,7 @@ and show me their output.
    `python3 src/build_map.py --show-agents`.
 5. Copy `examples/demo/build-map.json` into your project and write your own
    stages. Tell the orchestrator agent to keep it current, and each lane agent
-   to keep its card (PLAYBOOK.md step 7 has the text to paste).
+   to keep its card (PLAYBOOK.md step 8 has the text to paste).
 6. Look at one frame: `python3 src/build_map.py --once`. Then open the tab:
    `bash scripts/open-map-tab.sh`.
 
