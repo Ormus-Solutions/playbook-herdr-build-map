@@ -21,8 +21,8 @@ source that fails shows "unknown" in its block instead of ending the pane.
 
 ## What it saved me
 
-Ormus, in his own words: a map view for large projects with hundreds of
-agents, "a great way to stay on track with progress without ... asking one
+In my own words: a map view for large projects with hundreds of agents,
+"a great way to stay on track with progress without ... asking one
 session 'how much longer till we are done'". The change is in where the
 answer comes from: the state of the build is on screen all the time, so no
 session has to stop its work to guess at it.
@@ -40,7 +40,7 @@ it if you run one or two agents: a glance at their panes tells you as much.
 |---|---|---|
 | Python | 3.11 or newer | `python3 --version` |
 | git | any recent version | `git --version` |
-| Herdr | 0.9.5, the version it was written for; optional (see "cards" in PLAYBOOK.md) | `herdr --version` |
+| [Herdr](https://herdr.dev) | 0.9.5, the version it was written for; optional (see "cards" in PLAYBOOK.md) | `herdr --version` |
 | GitHub CLI, signed in | any recent version; optional (the PR QUEUE needs it) | `gh auth status` |
 
 The demo needs only Python. It reads synthetic files, not Herdr or GitHub.
@@ -171,10 +171,11 @@ Only a pane too short even for that loses its bottom lines.
 | `examples/run.sh`, `examples/expected-output.txt` | one demo frame, and the text it must print |
 | `tests/` | offline tests that pin the behaviour on the synthetic data |
 | `check.sh` | the one gate: tests, placeholders, scrub |
-| `scripts/scrub.sh` | the scrub check, copied from playbook-packaging, the playbook that sets how these playbook repos are packaged |
+| `scripts/scrub.sh` | the scrub check, copied unchanged from playbook-packaging |
 | `CHANGELOG.md` | what changed, newest first |
 
 ## Credits
 
-Made by Ormus (Ormus Solutions). Packaged with playbook-packaging, the
-playbook that sets how these playbook repos are packaged. MIT license.
+Made by Ormus (Ormus Solutions). Packaged with
+[playbook-packaging](https://github.com/Ormus-Solutions/playbook-packaging),
+the playbook that sets how these playbook repos are packaged. MIT license.
