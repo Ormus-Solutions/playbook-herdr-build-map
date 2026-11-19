@@ -69,18 +69,21 @@ and show me their output.
    build. `python3 src/build_map.py --demo` runs the live pane on it
    (Ctrl-C ends it).
 2. In a Herdr pane, open the demo in its own tab:
-   `bash scripts/open-map-tab.sh --demo`.
+   `bash scripts/open-map-tab.sh --demo`. Without Herdr, the live pane of
+   step 1 is the same view.
 3. Copy `examples/config.example.toml` to
    `~/.config/playbook-herdr-build-map/config.toml`. Set `title`, `repo`, the
    paths of `build_map` and `cards`, and one `[[lanes]]` table per lane.
 4. Give each lane's agent the lane's name in Herdr:
    `herdr agent rename <pane id> api`. Check with
-   `python3 src/build_map.py --show-agents`.
+   `python3 src/build_map.py --show-agents`. Without Herdr, set
+   `agents = "cards"` in the config and skip this step.
 5. Copy `examples/demo/build-map.json` into your project and write your own
    stages. Tell the orchestrator agent to keep it current, and each lane agent
    to keep its card (PLAYBOOK.md step 8 has the text to paste).
 6. Look at one frame: `python3 src/build_map.py --once`. Then open the tab:
-   `bash scripts/open-map-tab.sh`.
+   `bash scripts/open-map-tab.sh`. Without Herdr, run
+   `python3 src/build_map.py` in a terminal of its own.
 
 ## Preview
 

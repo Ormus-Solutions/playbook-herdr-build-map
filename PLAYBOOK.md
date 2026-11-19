@@ -13,8 +13,9 @@ reader's own repo, lane names and project folder.
 
 ## Goal
 
-A Herdr tab named Map whose one pane shows the reader's build and redraws it
-every second: OVERALL, STAGES from the project's `build-map.json`, PR QUEUE
+One pane that shows the reader's build and redraws it every second: a Herdr
+tab named Map, or, without Herdr (`agents = "cards"`), any terminal. It shows
+OVERALL, STAGES from the project's `build-map.json`, PR QUEUE
 from GitHub, one LANES row per agent lane, the agents by state and a FOR YOU
 list. The orchestrator agent keeps `build-map.json` current, and each lane
 agent keeps its card.
@@ -26,7 +27,7 @@ agent keeps its card.
 | Python 3.11 or newer | `python3 -c 'import sys; print(sys.version_info >= (3, 11))'` | `True` | install a newer Python from python.org or your package manager |
 | git | `git --version` | a version line | install git |
 | Herdr | `herdr --version` | `herdr 0.9.5` or newer | install it from herdr.dev; or skip Herdr: set `agents = "cards"` (step 5) and run the pane in any terminal |
-| A pane inside Herdr | `test "${HERDR_ENV:-}" = 1 && echo inside` | `inside` | open this repo in a Herdr pane and run your agent there; steps 3, 7 and 10 need it |
+| A pane inside Herdr | `test "${HERDR_ENV:-}" = 1 && echo inside` | `inside` | open this repo in a Herdr pane and run your agent there; without Herdr, steps 3 and 10 say what to do instead, and step 7 is skipped |
 | GitHub CLI, signed in | `gh auth status` | a line that says you are logged in | install gh from cli.github.com and run `gh auth login`; or leave `repo` empty (no PR QUEUE) |
 | Read access to the repo | `gh pr list --repo acme/acme-web --limit 1 --json number` | a JSON list, `[]` or `[{"number": ...}]` | fix the repo name in the command, or ask the repo owner for access |
 
@@ -78,6 +79,13 @@ shell start does not fail the check)
 Look at the tab: the spinners turn and the clock moves. Then close it, so
 step 10 does not make a second tab named Map:
 `herdr tab close <the tab id it printed>`. Step 10 opens the real one.
+
+Without Herdr, instead: run `python3 src/build_map.py --demo` in a terminal of
+its own and look at it (Ctrl-C ends it). An agent checks that it redraws:
+
+Verify (without Herdr): `timeout --foreground 4 python3 src/build_map.py --demo --no-color | grep -ao '[0-9][0-9]:[0-9][0-9]:[0-9][0-9]' | sort -u | wc -l`
+Expected: `2` or more (each redraw prints a newer time in its first line). On
+macOS, `timeout` comes with `brew install coreutils`, as `gtimeout`.
 
 ### 4. Copy the example config
 
@@ -236,6 +244,13 @@ so it may not see the variable.
 Verify: `herdr pane wait-output <the pane id it printed> --match LANES --timeout 15000 >/dev/null && echo seen`
 Expected: `seen`
 
+Without Herdr, instead: run `python3 src/build_map.py` (with `--config FILE`
+if your config is not at the default path) in a terminal of its own and leave
+it open.
+
+Verify (without Herdr): `timeout --foreground 4 python3 src/build_map.py --no-color | grep -ao '[0-9][0-9]:[0-9][0-9]:[0-9][0-9]' | sort -u | wc -l`
+Expected: `2` or more
+
 ## Adapt it
 
 | Setting | Where | Example |
@@ -263,8 +278,9 @@ Expected: `seen`
 - `python3 src/build_map.py --show-agents | tail -1` prints
   `every lane has an agent` (skip with `agents = "cards"`).
 - `python3 src/build_map.py --once --no-color | grep -c unknown` prints `0`.
-- The Map tab redraws: `herdr pane read <pane id> --source visible | head -1`,
-  run twice a few seconds apart, shows two different times.
+- The map redraws. In Herdr: `herdr pane read <pane id> --source visible | head -1`,
+  run twice a few seconds apart, shows two different times. Without Herdr:
+  the "Verify (without Herdr)" of step 10 prints `2` or more.
 
 ## Undo
 
