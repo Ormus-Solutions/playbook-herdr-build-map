@@ -49,6 +49,11 @@ The demo needs only Python. It reads synthetic files, not Herdr or GitHub.
 
 ### Hand it to your agent
 
+```bash
+git clone https://github.com/Ormus-Solutions/playbook-herdr-build-map
+cd playbook-herdr-build-map
+```
+
 Clone this repo, open your coding agent (Claude Code, Codex, Grok) inside the
 clone, and paste this. Change the repo name and the lanes to your own:
 
