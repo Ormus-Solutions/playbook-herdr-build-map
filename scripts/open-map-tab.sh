@@ -3,14 +3,16 @@
 #
 # Usage, from a pane inside Herdr:
 #   scripts/open-map-tab.sh --demo          the synthetic build, to see it in Herdr first
-#   scripts/open-map-tab.sh [config]        your build (default: the program's default config)
+#   scripts/open-map-tab.sh [config]        your build (default: $BUILD_MAP_CONFIG, else the
+#                                           program's default config)
 #
 # What it does, with Herdr's own CLI (the same two commands you can type by hand):
 #   1. herdr tab create --label Map --cwd <this repo> --no-focus   -> a new tab and its root pane
 #   2. herdr pane run <that pane> "python3 src/build_map.py ..."   -> the program in that pane
 # It creates one tab and changes nothing else. Close the tab to remove it.
 #
-# Settings: BUILD_MAP_TAB (the tab label, default Map), HERDR (the herdr command).
+# Settings: BUILD_MAP_TAB (the tab label, default Map), HERDR (the herdr command),
+# BUILD_MAP_CONFIG (the config when no argument names one).
 set -euo pipefail
 
 herdr=${HERDR:-herdr}
@@ -26,11 +28,16 @@ if [ "$#" -gt 1 ]; then
   exit 2
 fi
 
-if [ "${1:-}" = "--demo" ]; then
+# The new pane is started by the Herdr server, not by this shell, so it may not see
+# BUILD_MAP_CONFIG: pass it on as an argument instead.
+want=${1:-${BUILD_MAP_CONFIG:-}}
+want=${want/#\~/$HOME}
+
+if [ "$want" = "--demo" ]; then
   printf -v run 'python3 %q --demo' "$repo/src/build_map.py"
-elif [ -n "${1:-}" ]; then
-  [ -f "$1" ] || { echo "open-map-tab: no config at $1" >&2; exit 2; }
-  config="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"  # absolute, as the pane has its own cwd
+elif [ -n "$want" ]; then
+  [ -f "$want" ] || { echo "open-map-tab: no config at $want" >&2; exit 2; }
+  config="$(cd "$(dirname "$want")" && pwd)/$(basename "$want")"  # absolute, as the pane has its own cwd
   printf -v run 'python3 %q --config %q' "$repo/src/build_map.py" "$config"
 else
   printf -v run 'python3 %q' "$repo/src/build_map.py"

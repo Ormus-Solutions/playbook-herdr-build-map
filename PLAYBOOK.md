@@ -226,6 +226,12 @@ GitHub CLI, please run: gh auth login`). Fix what it names (the sign-in,
 bash scripts/open-map-tab.sh
 ```
 
+If your config is not at the default path, pass it:
+`bash scripts/open-map-tab.sh ~/builds/acme.toml`. When `$BUILD_MAP_CONFIG`
+is set and no argument is given, the script passes that path on as
+`--config`: the new pane is started by the Herdr server, not by your shell,
+so it may not see the variable.
+
 Verify: wait five seconds, then `herdr pane read <the pane id it printed> --source visible | grep -c 'LANES'`
 Expected: `1`
 

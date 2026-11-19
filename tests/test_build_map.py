@@ -382,7 +382,8 @@ class ShowAgentsTest(unittest.TestCase):
 class OpenTabTest(unittest.TestCase):
     """scripts/open-map-tab.sh against a stand-in herdr that records its arguments."""
 
-    def run_script(self, *args: str, inside: bool = True) -> tuple[subprocess.CompletedProcess, list[list[str]]]:
+    def run_script(self, *args: str, inside: bool = True,
+                   env_extra: dict[str, str] | None = None) -> tuple[subprocess.CompletedProcess, list[list[str]]]:
         with tempfile.TemporaryDirectory() as tmp:
             log = Path(tmp) / "calls.jsonl"
             fake = Path(tmp) / "herdr"
@@ -395,8 +396,9 @@ class OpenTabTest(unittest.TestCase):
                 "else:\n"
                 "    print(json.dumps({'result': {'type': 'ok'}}))\n", encoding="utf-8")
             fake.chmod(0o755)
-            env = {k: v for k, v in os.environ.items() if not k.startswith("HERDR")}
+            env = {k: v for k, v in os.environ.items() if not k.startswith(("HERDR", "BUILD_MAP"))}
             env["HERDR"] = str(fake)
+            env.update(env_extra or {})
             if inside:
                 env.update(HERDR_ENV="1", HERDR_WORKSPACE_ID="w1")
             done = subprocess.run(["bash", str(ROOT / "scripts" / "open-map-tab.sh"), *args],
@@ -413,6 +415,25 @@ class OpenTabTest(unittest.TestCase):
         self.assertEqual(calls[1][:3], ["pane", "run", "w1:p42"])
         self.assertTrue(calls[1][3].endswith("build_map.py --demo"))
         self.assertEqual(len(calls), 2)
+
+    def test_it_passes_build_map_config_on_to_the_new_pane(self) -> None:
+        # The new pane is started by the Herdr server, so the script names the config itself.
+        with tempfile.TemporaryDirectory() as tmp:
+            config = Path(tmp) / "acme.toml"
+            config.write_text("", encoding="utf-8")
+            done, calls = self.run_script(env_extra={"BUILD_MAP_CONFIG": str(config)})
+            self.assertEqual(done.returncode, 0, done.stderr)
+            self.assertTrue(calls[1][3].endswith(f"build_map.py --config {config}"), calls[1])
+            other = Path(tmp) / "other.toml"
+            other.write_text("", encoding="utf-8")
+            done, calls = self.run_script(str(other), env_extra={"BUILD_MAP_CONFIG": str(config)})
+            self.assertTrue(calls[1][3].endswith(f"build_map.py --config {other}"), calls[1])  # the argument wins
+            done, calls = self.run_script("--demo", env_extra={"BUILD_MAP_CONFIG": str(config)})
+            self.assertTrue(calls[1][3].endswith("build_map.py --demo"), calls[1])
+        done, calls = self.run_script(env_extra={"BUILD_MAP_CONFIG": "/nonexistent/acme.toml"})
+        self.assertEqual((done.returncode, calls), (2, []))
+        done, calls = self.run_script()
+        self.assertTrue(calls[1][3].endswith("build_map.py"), calls[1])  # the program's own default
 
     def test_it_refuses_outside_herdr(self) -> None:
         done, calls = self.run_script("--demo", inside=False)
