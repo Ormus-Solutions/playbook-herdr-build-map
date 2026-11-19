@@ -134,18 +134,33 @@ The pane finds a lane's state by the agent's name in Herdr. Herdr takes a
 name only when it is a lowercase letter, then lowercase letters, digits, `-`
 or `_`, 32 characters at most. When a lane's `name` breaks that rule (`Web`,
 `api.v2`), set `agent = "web"` in its `[[lanes]]` table: the program refuses
-such a config and names the lane. List the panes,
-then name the agent in each lane's pane (ask the person first: a rename is
-visible in their Herdr):
+such a config and names the lane. Skip this step when `agents = "cards"`.
+
+List the panes:
 
 ```bash
 herdr pane list --workspace "$HERDR_WORKSPACE_ID"
+```
+
+Match each lane to its pane by the `label`, `cwd` or `title` in that JSON, or
+ask the person which pane runs which lane. Leave out `--workspace` when lanes
+run in other workspaces, so the list is not kept to this one.
+
+A pane where an agent already runs: name that agent (ask the person first: a
+rename is visible in their Herdr). Herdr renames only an agent it has already
+detected in the pane.
+
+```bash
 herdr agent rename <pane id> api
 ```
 
-A new agent gets its name when it starts:
-`herdr agent start api --kind claude --pane <pane id>`. Skip this step when
-`agents = "cards"`.
+A pane at an empty shell prompt: a new agent gets its name when it starts.
+Ask the person first, and use only a pane they name: this starts a new agent
+session there.
+
+```bash
+herdr agent start api --kind claude --pane <pane id>
+```
 
 Verify: `python3 src/build_map.py --show-agents | tail -1`
 Expected: `every lane has an agent` (otherwise it lists the lanes it did not find)
